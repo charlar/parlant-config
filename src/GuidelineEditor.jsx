@@ -21,11 +21,9 @@ const GuidelineEditor = ({ client }) => {
     const [agents, setAgents] = useState([]);
     const [selectedAgentId, setSelectedAgentId] = useState(null);
     const [guidelines, setGuidelines] = useState([]);
-    const [newGuideline, setNewGuideline] = useState({ condition: '', action: '', connections: [], services: [] });
     const [guidelineDetails, setGuidelineDetails] = useState({ condition: '', action: '', connections: [], services: [] });
     const [selectedGuidelineId, setSelectedGuidelineId] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
-    const [cutGuideline, setCurGuideline] = useState(null);
 
     useEffect(() => {
         if (document.visibilityState === 'visible') {
@@ -55,13 +53,11 @@ const GuidelineEditor = ({ client }) => {
 
     useEffect(() => {
         if (selectedGuidelineId) {
-            readGuideline(selectedAgentId, selectedGuidelineId)
-
+            readGuideline(selectedAgentId, selectedGuidelineId);
         } else {
             setGuidelineDetails({ condition: '', action: '', connections: [], services: [] });
         }
     }, [selectedGuidelineId]);
-
 
     const fetchAgents = async () => {
         try {
@@ -84,27 +80,22 @@ const GuidelineEditor = ({ client }) => {
     const readGuideline = async (agentId, guidelineId) => {
         try {
             const gd = await client.readGuideline(agentId, guidelineId);
-            console.log(gd)
-
             setGuidelineDetails({
                 condition: gd.guideline.condition,
                 action: gd.guideline.action,
                 connections: gd.connections || [],
                 services: gd.tool_associations || []
             });
-
         } catch (error) {
             console.error('Failed to fetch guidelines:', error);
         }
     };
-
 
     const selectGuideline = (guideline) => {
         setSelectedGuidelineId(guideline.id);
         setErrorMessage('');
     };
 
-    console.log("guideline: ", guidelineDetails);
     return (
         <div className="d-flex vh-100">
             <FormControl fullWidth sx={{ mb: 3 }}>
@@ -123,13 +114,6 @@ const GuidelineEditor = ({ client }) => {
             </FormControl>
 
             <div className="fullWidth border-end overflow-auto p-3">
-                <Button variant="primary" onClick={() => {
-                    setSelectedGuidelineId(null);
-                    setGuidelineDetails({ condition: '', action: '', connections: [], services: [] });
-                    setErrorMessage('');
-                }} className="w-100 mb-3">
-                    Add New Guideline
-                </Button>
                 <List>
                     {guidelines.map((guideline) => (
                         <ListItem button key={guideline.id} onClick={() => selectGuideline(guideline)}>
@@ -140,30 +124,28 @@ const GuidelineEditor = ({ client }) => {
             </div>
 
             <div className="fullWidth p-3">
-                <h4>{selectedGuidelineId ? 'Edit Guideline' : 'Add New Guideline'}</h4>
+                <h4>Guideline Details</h4>
                 <Divider className="mb-10" />
 
                 <TextField
+                    multiline
+                    minRows={4}
                     fullWidth
                     label="Condition"
                     name="condition"
-                    value={selectedGuidelineId ? guidelineDetails.condition : newGuideline.condition}
-                    onChange={(e) => {
-                        const { name, value } = e.target;
-                        setGuidelineDetails((prev) => ({ ...prev, [name]: value }));
-                    }}
+                    value={guidelineDetails.condition}
+                    disabled
                     sx={{ mt: 1 }}
                 />
 
                 <TextField
+                    multiline
+                    minRows={10}
                     fullWidth
                     label="Action"
                     name="action"
-                    value={selectedGuidelineId ? guidelineDetails.action : newGuideline.action}
-                    onChange={(e) => {
-                        const { name, value } = e.target;
-                        setGuidelineDetails((prev) => ({ ...prev, [name]: value }));
-                    }}
+                    value={guidelineDetails.action}
+                    disabled
                     sx={{ mt: 1 }}
                 />
 
@@ -173,22 +155,11 @@ const GuidelineEditor = ({ client }) => {
                     </Alert>
                 )}
 
-                <div className="d-flex gap-3">
-                    {selectedGuidelineId ? (
-                        <>
-                            <Button variant="primary" onClick={() => client.updateGuideline(selectedAgentId, selectedGuidelineId, guidelineDetails)}>
-                                Update Guideline
-                            </Button>
-                            <Button variant="outlined" color="secondary" onClick={() => client.deleteGuideline(selectedAgentId, selectedGuidelineId)}>
-                                Delete Guideline
-                            </Button>
-                        </>
-                    ) : (
-                        <Button variant="primary" onClick={() => client.addGuideline(selectedAgentId, [newGuideline])}>
-                            Add Guideline
-                        </Button>
-                    )}
-                </div>
+                {selectedGuidelineId && (
+                    <Button variant="outlined" color="secondary" onClick={() => client.deleteGuideline(selectedAgentId, selectedGuidelineId)}>
+                        Delete Guideline
+                    </Button>
+                )}
 
                 <ServiceList
                     client={client}

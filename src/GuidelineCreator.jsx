@@ -50,7 +50,7 @@ const GuidelineCreator = ({ client }) => {
             const evalResponse = await client.createEvaluation(selectedAgentId, newGuideline.condition, newGuideline.action);
             setEvaluation(evalResponse);
             setEvaluationStatus('pending');
-            setProgress(evalResponse.status);
+            setProgress(evalResponse.progress);
             pollEvaluation(evalResponse.id);
         } catch (error) {
             console.error('Failed to evaluate guideline:', error);
@@ -66,7 +66,7 @@ const GuidelineCreator = ({ client }) => {
                 console.log(evalResponse)
                 setEvaluation(evalResponse);
                 setEvaluationStatus(evalResponse.status);
-                setProgress(evalResponse.status);
+                setProgress(evalResponse.progress);
                 if (evalResponse.status === 'completed' || evalResponse.status === 'failed') break;
             } catch (error) {
                 console.error('Failed to read evaluation:', error);
@@ -74,6 +74,7 @@ const GuidelineCreator = ({ client }) => {
             }
             await new Promise(resolve => setTimeout(resolve, 2000));
         }
+        setProgress(100);
     };
 
     const commitGuideline = async () => {
