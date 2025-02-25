@@ -18,7 +18,7 @@ import { createRoot } from 'react-dom/client';
 import ParlantEditor from './ParlantEditor';  // Ensure correct path
 import './index.css'; // If you're using Tailwind or other styles
 
-const SERVER_ADDRESS = 'http://localhost:8800';
+const SERVER_URL = window.SERVER_URL || 'http://localhost:8800';
 
 const App = () => {
     return (
